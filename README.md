@@ -21,6 +21,11 @@ A simple demonstration of Pydantic features integrated with Google Gemini for st
    - Ensuring type-safe AI responses
    - Automatic validation of AI-generated content
 
+4. **Prompt Chaining (Kid-Suitability Check)**
+   - Reuse the first model's structured review as input to a second prompt
+   - Validates a second JSON response: whether the movie is suitable for kids under 10
+   - Returns fields: suitable_for_under_10, reasoning, warnings, suggested_min_age
+
 ## Setup
 
 The project uses `uv` for dependency management.
@@ -37,6 +42,8 @@ Get your API key from [Google AI Studio](https://makersuite.google.com/app/apike
 
 ```bash
 export GOOGLE_API_KEY='your-api-key-here'
+# or
+export GEMINI_API_KEY='your-api-key-here'
 ```
 
 ## Run the Demo
@@ -52,6 +59,18 @@ source .venv/bin/activate
 python pydantic_demo.py
 ```
 
+### CLI: choose a movie title
+
+You can pass a custom movie title with `--movie` (or `-m`). If omitted, the default is "The Matrix".
+
+```bash
+# Default (reviews "The Matrix")
+uv run pydantic_demo.py
+
+# Custom movie
+uv run pydantic_demo.py --movie "Toy Story"
+```
+
 ## What You'll Learn
 
 - How Pydantic validates data automatically
@@ -59,6 +78,7 @@ python pydantic_demo.py
 - How to work with nested models
 - How to use Pydantic with Google Gemini for structured, type-safe AI responses
 - How validation errors work and provide helpful messages
+ - How to chain prompts and validate the second response (kid-suitability check)
 
 ## Example Output
 
@@ -66,6 +86,7 @@ The script will show:
 - ✅ Successful validations with properly formatted data
 - ❌ Validation errors with clear error messages
 - 🤖 Structured movie review from Google Gemini, validated with Pydantic
+- 🎯 Chained suitability assessment for kids under 10 with validated JSON output
 
 ## Dependencies
 

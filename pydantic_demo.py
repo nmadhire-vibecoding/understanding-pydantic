@@ -18,6 +18,7 @@ For latest models, see: https://ai.google.dev/gemini-api/docs/models
 """
 
 import os
+import argparse
 from datetime import datetime
 from typing import Optional, List
 from pydantic import BaseModel, Field, EmailStr, field_validator, ValidationError, ConfigDict
@@ -198,8 +199,12 @@ def demonstrate_nested_models():
         print(f"❌ Error: {e}")
 
 
-def demonstrate_gemini_structured_output():
-    """Demonstrate using Pydantic with Google Gemini for structured output"""
+def demonstrate_gemini_structured_output(movie_title: str):
+    """Demonstrate using Pydantic with Google Gemini for structured output for a given movie.
+
+    Args:
+        movie_title: Title of the movie to review.
+    """
     print("\n\n" + "=" * 60)
     print("EXAMPLE 3: Pydantic with Google Gemini")
     print("=" * 60)
@@ -217,24 +222,15 @@ def demonstrate_gemini_structured_output():
     try:
         # Configure Gemini
         genai.configure(api_key=api_key)
-        
+
         # Use Gemini 2.5 Flash - latest stable model with best price-performance
-        # As of November 2025, this is the recommended model for production use
         model = genai.GenerativeModel('gemini-2.5-flash')
-        
-        print("\n🤖 Asking Gemini 2.5 Flash to review 'The Matrix' with structured output...")
-        
+
+        print(f"\n🤖 Asking Gemini 2.5 Flash to review '{movie_title}' with structured output...")
+
         # Create a prompt that asks for JSON in the Pydantic schema format
-        prompt = """Write a review of the movie 'The Matrix' (1999) in JSON format with these fields:
-        - title: string (movie title)
-        - rating: integer 1-10
-        - genre: string
-        - summary: string (brief summary)
-        - pros: array of strings (positive aspects)
-        - cons: array of strings (negative aspects)
-        
-        Return ONLY the JSON, no other text."""
-        
+        prompt = f"""Write a review of the movie '{movie_title}' in JSON format with these fields:\n- title: string (movie title)\n- rating: integer 1-10\n- genre: string\n- summary: string (brief summary)\n- pros: array of strings (positive aspects)\n- cons: array of strings (negative aspects)\n\nReturn ONLY the JSON, no other text."""
+
         response = model.generate_content(prompt)
 
         # Extract JSON and validate against the schema
@@ -270,7 +266,7 @@ def demonstrate_gemini_structured_output():
         print(f"\n  Raw JSON:\n{suitability.model_dump_json(indent=2)}")
         
     except ValidationError as e:
-        print(f"❌ Validation Error - Gemini response doesn't match schema:")
+        print("❌ Validation Error - Gemini response doesn't match schema:")
         for error in e.errors():
             print(f"  Field: {error['loc']}, Error: {error['msg']}")
     except Exception as e:
@@ -302,15 +298,21 @@ Movie review JSON:
     return MovieSuitability.model_validate_json(json_text)
 
 
+def parse_args() -> argparse.Namespace:
+    parser = argparse.ArgumentParser(description="Pydantic + Gemini demo")
+    parser.add_argument("--movie", "-m", default="The Matrix", help="Movie title to review (default: The Matrix)")
+    return parser.parse_args()
+
+
 def main():
     """Run all demonstrations"""
+    args = parse_args()
     print("\n" + "🐍 PYDANTIC DEMONSTRATION " + "🐍".center(60))
-    
-    # Run examples
+
     demonstrate_basic_pydantic()
     demonstrate_nested_models()
-    demonstrate_gemini_structured_output()
-    
+    demonstrate_gemini_structured_output(args.movie)
+
     print("\n" + "=" * 60)
     print("Demo Complete!")
     print("=" * 60 + "\n")
