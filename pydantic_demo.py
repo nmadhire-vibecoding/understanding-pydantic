@@ -19,47 +19,12 @@ For latest models, see: https://ai.google.dev/gemini-api/docs/models
 
 import os
 import argparse
-from datetime import datetime
-from typing import Optional, List
-from pydantic import BaseModel, Field, EmailStr, field_validator, ValidationError, ConfigDict
+from typing import List
+from pydantic import BaseModel, Field, ValidationError, ConfigDict
 import google.generativeai as genai
 
 
-# Example 1: Basic Pydantic Model
-class User(BaseModel):
-    """A simple user model demonstrating basic Pydantic features"""
-    id: int
-    name: str
-    email: EmailStr  # Validates email format
-    age: int = Field(..., ge=0, le=150)  # Age must be between 0 and 150
-    is_active: bool = True
-    created_at: datetime = Field(default_factory=datetime.now)
-    
-    @field_validator('name')
-    @classmethod
-    def name_must_not_be_empty(cls, v: str) -> str:
-        if not v.strip():
-            raise ValueError('Name cannot be empty')
-        return v.title()  # Capitalize name
-
-
-# Example 2: Nested Models
-class Address(BaseModel):
-    """Address model"""
-    street: str
-    city: str
-    country: str
-    zip_code: str = Field(..., min_length=5, max_length=10)
-
-
-class UserProfile(BaseModel):
-    """User profile with nested address"""
-    user: User
-    address: Optional[Address] = None
-    phone_numbers: List[str] = []
-
-
-# Example 3: Using Pydantic with Google Gemini for structured output
+# Structured output example with Google Gemini (only example retained)
 class MovieReview(BaseModel):
     """Structured movie review"""
     model_config = ConfigDict(
@@ -111,102 +76,14 @@ def _extract_json_text(response_text: str) -> str:
     return text
 
 
-def demonstrate_basic_pydantic():
-    """Demonstrate basic Pydantic validation"""
-    print("=" * 60)
-    print("EXAMPLE 1: Basic Pydantic Validation")
-    print("=" * 60)
-    
-    # Valid user
-    try:
-        user = User(
-            id=1,
-            name="john doe",
-            email="john@example.com",
-            age=30
-        )
-        print("\n✅ Valid User Created:")
-        print(f"  Name: {user.name}")  # Will be capitalized
-        print(f"  Email: {user.email}")
-        print(f"  Age: {user.age}")
-        print(f"  Created at: {user.created_at}")
-        print(f"\n  JSON: {user.model_dump_json(indent=2)}")
-    except ValidationError as e:
-        print(f"❌ Error: {e}")
-    
-    # Invalid user - bad email
-    print("\n" + "-" * 60)
-    print("Testing with invalid email:")
-    try:
-        invalid_user = User(
-            id=2,
-            name="Jane Doe",
-            email="not-an-email",
-            age=25
-        )
-    except ValidationError as e:
-        print(f"❌ Validation Error (as expected):")
-        for error in e.errors():
-            print(f"  Field: {error['loc'][0]}, Error: {error['msg']}")
-    
-    # Invalid user - age out of range
-    print("\n" + "-" * 60)
-    print("Testing with invalid age:")
-    try:
-        invalid_user = User(
-            id=3,
-            name="Old Person",
-            email="old@example.com",
-            age=200
-        )
-    except ValidationError as e:
-        print(f"❌ Validation Error (as expected):")
-        for error in e.errors():
-            print(f"  Field: {error['loc'][0]}, Error: {error['msg']}")
-
-
-def demonstrate_nested_models():
-    """Demonstrate nested Pydantic models"""
-    print("\n\n" + "=" * 60)
-    print("EXAMPLE 2: Nested Models")
-    print("=" * 60)
-    
-    try:
-        profile = UserProfile(
-            user={
-                "id": 1,
-                "name": "alice wonderland",
-                "email": "alice@example.com",
-                "age": 28
-            },
-            address={
-                "street": "123 Main St",
-                "city": "San Francisco",
-                "country": "USA",
-                "zip_code": "94102"
-            },
-            phone_numbers=["+1-555-0100", "+1-555-0101"]
-        )
-        
-        print("\n✅ User Profile Created:")
-        print(f"  User: {profile.user.name}")
-        print(f"  Email: {profile.user.email}")
-        print(f"  City: {profile.address.city}")
-        print(f"  Phones: {', '.join(profile.phone_numbers)}")
-        print(f"\n  Full JSON:\n{profile.model_dump_json(indent=2)}")
-        
-    except ValidationError as e:
-        print(f"❌ Error: {e}")
-
-
 def demonstrate_gemini_structured_output(movie_title: str):
     """Demonstrate using Pydantic with Google Gemini for structured output for a given movie.
 
     Args:
         movie_title: Title of the movie to review.
     """
-    print("\n\n" + "=" * 60)
-    print("EXAMPLE 3: Pydantic with Google Gemini")
+    print("\n" + "=" * 60)
+    print("STRUCTURED OUTPUT & PROMPT CHAINING")
     print("=" * 60)
     
     # Check for API key
@@ -305,14 +182,10 @@ def parse_args() -> argparse.Namespace:
 
 
 def main():
-    """Run all demonstrations"""
+    """Run Gemini structured output + prompt chaining demo only"""
     args = parse_args()
-    print("\n" + "🐍 PYDANTIC DEMONSTRATION " + "🐍".center(60))
-
-    demonstrate_basic_pydantic()
-    demonstrate_nested_models()
+    print("\n" + "🤖 GEMINI STRUCTURED OUTPUT DEMO " + "🤖".center(40))
     demonstrate_gemini_structured_output(args.movie)
-
     print("\n" + "=" * 60)
     print("Demo Complete!")
     print("=" * 60 + "\n")

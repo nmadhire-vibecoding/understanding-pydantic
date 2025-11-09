@@ -4,24 +4,11 @@ A simple demonstration of Pydantic features integrated with Google Gemini for st
 
 ## Features Demonstrated
 
-1. **Basic Pydantic Validation**
-   - Type checking
-   - Field constraints (min, max values)
-   - Email validation
-   - Custom validators
-   - Default values
-
-2. **Nested Models**
-   - Complex data structures
-   - Optional fields
-   - Lists and nested objects
-
-3. **Structured Output with Google Gemini**
+1. **Structured Output with Google Gemini**
    - Using Pydantic models as schema for LLM responses
    - Ensuring type-safe AI responses
    - Automatic validation of AI-generated content
-
-4. **Prompt Chaining (Kid-Suitability Check)**
+2. **Prompt Chaining (Kid-Suitability Check)**
    - Reuse the first model's structured review as input to a second prompt
    - Validates a second JSON response: whether the movie is suitable for kids under 10
    - Returns fields: suitable_for_under_10, reasoning, warnings, suggested_min_age
@@ -73,18 +60,15 @@ uv run pydantic_demo.py --movie "Toy Story"
 
 ## What You'll Learn
 
-- How Pydantic validates data automatically
-- How to define field constraints and custom validators
-- How to work with nested models
-- How to use Pydantic with Google Gemini for structured, type-safe AI responses
-- How validation errors work and provide helpful messages
- - How to chain prompts and validate the second response (kid-suitability check)
+- How to define and validate structured JSON output with Pydantic
+- How to use Pydantic with Google Gemini for type-safe AI responses
+- How to extract and sanitize JSON from LLM outputs
+- How to chain prompts: passing validated output into a second model query
+- How to validate a secondary schema (kid suitability assessment)
 
 ## Example Output
 
 The script will show:
-- ✅ Successful validations with properly formatted data
-- ❌ Validation errors with clear error messages
 - 🤖 Structured movie review from Google Gemini, validated with Pydantic
 - 🎯 Chained suitability assessment for kids under 10 with validated JSON output
 
@@ -92,7 +76,7 @@ The script will show:
 
 - `pydantic` - Data validation and settings management
 - `google-generativeai` - Google Gemini API (using Gemini 2.5 Flash)
-- `email-validator` - Email validation support
+- `email-validator` - Email validation support (indirectly required by Pydantic's EmailStr if used in future extensions)
 
 ## Gemini Models
 
